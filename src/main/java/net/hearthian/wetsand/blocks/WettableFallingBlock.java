@@ -7,6 +7,7 @@ import net.minecraft.block.FallingBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockView;
 
 public class WettableFallingBlock extends FallingBlock implements Wettable {
     public static final MapCodec<WettableFallingBlock> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(HumidityLevel.CODEC.fieldOf("humidity_state").forGetter(Wettable::getHumidityLevel), createSettingsCodec()).apply(instance, WettableFallingBlock::new));
@@ -16,13 +17,17 @@ public class WettableFallingBlock extends FallingBlock implements Wettable {
         return CODEC;
     }
 
+    @Override
+    public int getColor(BlockState state, BlockView world, BlockPos pos) {
+        return 0;
+    }
+
     public WettableFallingBlock(HumidityLevel humidityLevel, Settings settings) {
         super(settings);
         this.humidityLevel = humidityLevel;
     }
 
     protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-//        LOGGER.info("GETS RANDOM TICK...");
         this.tickHumidity(state, world, pos);
     }
 
