@@ -37,7 +37,6 @@ public interface Wettable {
   HumidityLevel getHumidityLevel();
 
   default Optional<BlockState> tryDrench(BlockState state, ServerWorld world, BlockPos pos) {
-//    LOGGER.info("TRY DRENCHING...");
     int currentLevel = this.getHumidityLevel().ordinal();
 
     AtomicInteger maxHumidityLevel = new AtomicInteger(0);
