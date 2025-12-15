@@ -1,50 +1,51 @@
 package net.hearthian.wetsand.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.ai.pathing.NavigationType;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public class SoakedBrushableBlock extends WettableBrushableBlock implements Wettable {
 //    public static final MapCodec<SoakedBlock> CODEC = createCodec(SoakedBrushableBlock::new);
-    protected static final VoxelShape COLLISION_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 14.0, 16.0);
+    protected static final VoxelShape COLLISION_SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0);
 
 //    @Override
 //    public MapCodec<SoakedBrushableBlock> getCodec() {
 //        return CODEC;
 //    }
 
-    public SoakedBrushableBlock(Block baseBlock, SoundEvent brushingSound, SoundEvent brushingCompleteSound, Settings settings) {
+    public SoakedBrushableBlock(Block baseBlock, SoundEvent brushingSound, SoundEvent brushingCompleteSound, Properties settings) {
         super(HumidityLevel.SOAKED, baseBlock, brushingSound, brushingCompleteSound, settings);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    protected @NotNull VoxelShape getCollisionShape(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return COLLISION_SHAPE;
     }
 
     @Override
-    protected VoxelShape getSidesShape(BlockState state, BlockView world, BlockPos pos) {
-        return VoxelShapes.fullCube();
+    protected @NotNull VoxelShape getBlockSupportShape(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos) {
+        return Shapes.block();
     }
 
     @Override
-    protected VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return VoxelShapes.fullCube();
+    protected @NotNull VoxelShape getVisualShape(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return Shapes.block();
     }
 
     @Override
-    protected boolean canPathfindThrough(BlockState state, NavigationType type) {
+    protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType type) {
         return false;
     }
 
     @Override
-    protected float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
+    protected float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos) {
         return 0.2F;
     }
 

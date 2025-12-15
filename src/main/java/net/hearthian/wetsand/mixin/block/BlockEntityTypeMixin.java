@@ -1,20 +1,20 @@
 package net.hearthian.wetsand.mixin.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntityType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.Set;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import static net.hearthian.wetsand.utils.initializer.*;
 
 @Mixin(BlockEntityType.class)
 public class BlockEntityTypeMixin {
     @ModifyArg(
-        method="create",
+        method="register",
         at= @At(value = "INVOKE", target = "Ljava/util/Set;of([Ljava/lang/Object;)Ljava/util/Set;")
     )
     private static <E> E[] setOf(E[] elements) {

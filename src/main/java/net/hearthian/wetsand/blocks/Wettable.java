@@ -5,18 +5,22 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.mojang.serialization.Codec;
 import net.hearthian.wetsand.utils.BrushableBlockEntityAccessor;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BrushableBlockEntity;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BrushableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -32,18 +36,18 @@ public interface Wettable {
     .put(Blocks.RED_SAND, MOIST_RED_SAND).put(MOIST_RED_SAND, WET_RED_SAND).put(WET_RED_SAND, SOAKED_RED_SAND)
     .build()
   );
-  Supplier<BiMap<Object, Object>> HUMIDITY_LEVEL_DECREASES = Suppliers.memoize(() -> HUMIDITY_LEVEL_INCREASES.get().inverse());
+  Supplier<BiMap<Object, Object>> HUMIDITY_LEVEL_DECREASES = Suppliers.memoize(() -> Objects.requireNonNull(HUMIDITY_LEVEL_INCREASES.get()).inverse());
 
   HumidityLevel getHumidityLevel();
 
-  default Optional<BlockState> tryDrench(BlockState state, ServerWorld world, BlockPos pos) {
+  default Optional<BlockState> tryDrench(BlockState state, ServerLevel world, BlockPos pos) {
     int currentLevel = this.getHumidityLevel().ordinal();
 
     AtomicInteger maxHumidityLevel = new AtomicInteger(0);
 
-    BlockPos.findClosest(pos, HUMIDITY_RANGE, HUMIDITY_RANGE, (conditionPos) -> {
-      if (world.getFluidState(conditionPos).isOf(Fluids.WATER) || world.getFluidState(conditionPos).isOf(Fluids.FLOWING_WATER)) {
-        int distance = conditionPos.getChebyshevDistance(pos);
+    BlockPos.findClosestMatch(pos, HUMIDITY_RANGE, HUMIDITY_RANGE, (conditionPos) -> {
+      if (world.getFluidState(conditionPos).is(Fluids.WATER) || world.getFluidState(conditionPos).is(Fluids.FLOWING_WATER)) {
+        int distance = conditionPos.distChessboard(pos);
         if ((HUMIDITY_RANGE - currentLevel) >= distance) {
           maxHumidityLevel.set(HUMIDITY_RANGE - distance + 1);
           return true;
@@ -53,13 +57,13 @@ public interface Wettable {
       return false;
     });
 
-    BlockPos[] adjacent = { pos.north(), pos.south(), pos.south(), pos.east(), pos.west(), pos.up(), pos.down() };
+    BlockPos[] adjacent = { pos.north(), pos.south(), pos.south(), pos.east(), pos.west(), pos.above(), pos.below() };
 
     for (BlockPos conditionPos : adjacent) {
-      if (world.getFluidState(conditionPos).isOf(Fluids.WATER)) {
+      if (world.getFluidState(conditionPos).is(Fluids.WATER)) {
         return this.getHumidityResult(state);
       }
-      if (world.getBlockState(conditionPos).isIn(TagKey.of(RegistryKeys.BLOCK, Identifier.of("wet-sand", "wettable")))) {
+      if (world.getBlockState(conditionPos).is(TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("wet-sand", "wettable")))) {
         if (world.getBlockState(conditionPos).getBlock() instanceof Wettable wettable) {
           int humidityLevel = wettable.getHumidityLevel().ordinal();
 
@@ -73,14 +77,14 @@ public interface Wettable {
     return Optional.empty();
   }
 
-  default void tickHumidity(BlockState state, ServerWorld world, BlockPos pos) {
+  default void tickHumidity(BlockState state, ServerLevel world, BlockPos pos) {
     BlockEntity entity = world.getBlockEntity(pos);
 
-    if (entity == null || (entity instanceof BrushableBlockEntity && state.get(Properties.DUSTED) == 0)) {
+    if (entity == null || (entity instanceof BrushableBlockEntity && state.getValue(BlockStateProperties.DUSTED) == 0)) {
       this.tryDrench(state, world, pos).ifPresent((drenched) -> {
 
   //        entity.cancelRemoval();
-        world.setBlockState(pos, drenched);
+        world.setBlockAndUpdate(pos, drenched);
 //        world.setBlockState(pos, drenched, 2, 0);
 
         if (entity instanceof BrushableBlockEntity brushableBlockEntity) {
@@ -98,7 +102,7 @@ public interface Wettable {
   }
 
   default Optional<BlockState> getDecreasedHumidityState(BlockState state) {
-    return getDecreasedHumidityBlock(state.getBlock()).map((block) -> block.getStateWithProperties(state));
+    return getDecreasedHumidityBlock(state.getBlock()).map((block) -> block.withPropertiesOf(state));
   }
 
   default Optional<Block> getIncreasedHumidityBlock(Block block) {
@@ -106,23 +110,23 @@ public interface Wettable {
   }
 
   default Optional<BlockState> getHumidityResult(BlockState state) {
-    return getIncreasedHumidityBlock(state.getBlock()).map((block) -> block.getStateWithProperties(state));
+    return getIncreasedHumidityBlock(state.getBlock()).map((block) -> block.withPropertiesOf(state));
   }
 
-  enum HumidityLevel implements StringIdentifiable {
+  enum HumidityLevel implements StringRepresentable {
     UNAFFECTED("unaffected"),
     MOIST("moist"),
     WET("wet"),
     SOAKED("soaked");
 
-    public static final Codec<HumidityLevel> CODEC = StringIdentifiable.createCodec(HumidityLevel::values);
+    public static final Codec<HumidityLevel> CODEC = StringRepresentable.fromEnum(HumidityLevel::values);
     private final String id;
 
     HumidityLevel(final String id) {
       this.id = id;
     }
 
-    public String asString() {
+    public @NotNull String getSerializedName() {
       return this.id;
     }
   }

@@ -2,77 +2,81 @@ package net.hearthian.wetsand.utils;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.hearthian.wetsand.blocks.*;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.MapColor;
-import net.minecraft.block.enums.NoteBlockInstrument;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
-import net.minecraft.registry.*;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
+import org.jetbrains.annotations.NotNull;
 
 import static net.hearthian.wetsand.WetSand.MOD_ID;
 
 public class initializer {
     public static final Block SAND = new WettableFallingBlock(
-        Wettable.HumidityLevel.UNAFFECTED,
-        AbstractBlock.Settings.create().mapColor(MapColor.PALE_YELLOW).instrument(NoteBlockInstrument.SNARE).strength(0.5F).sounds(BlockSoundGroup.SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of("minecraft", "sand")))
+            Wettable.HumidityLevel.UNAFFECTED,
+            BlockBehaviour.Properties.of().mapColor(MapColor.SAND).instrument(NoteBlockInstrument.SNARE).strength(0.5F).sound(SoundType.SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "sand")))
     );
     public static final Block MOIST_SAND = new WettableFallingBlock(
-        Wettable.HumidityLevel.MOIST,
-        AbstractBlock.Settings.copy(SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "moist_sand")))
+            Wettable.HumidityLevel.MOIST,
+            BlockBehaviour.Properties.ofFullCopy(SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "moist_sand")))
     );
     public static final Block WET_SAND = new WettableBlock(
-        Wettable.HumidityLevel.WET,
-        AbstractBlock.Settings.copy(SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "wet_sand")))
+            Wettable.HumidityLevel.WET,
+            BlockBehaviour.Properties.ofFullCopy(SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "wet_sand")))
     );
     public static final Block SOAKED_SAND = new SoakedBlock(
-        AbstractBlock.Settings.copy(SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "soaked_sand")))
+            BlockBehaviour.Properties.ofFullCopy(SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "soaked_sand")))
     );
     public static final Block RED_SAND = new WettableFallingBlock(
-        Wettable.HumidityLevel.UNAFFECTED,
-        AbstractBlock.Settings.create().mapColor(MapColor.ORANGE).instrument(NoteBlockInstrument.SNARE).strength(0.5F).sounds(BlockSoundGroup.SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of("minecraft", "red_sand")))
+            Wettable.HumidityLevel.UNAFFECTED,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).instrument(NoteBlockInstrument.SNARE).strength(0.5F).sound(SoundType.SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "red_sand")))
     );
     public static final Block MOIST_RED_SAND = new WettableFallingBlock(
-        Wettable.HumidityLevel.MOIST,
-        AbstractBlock.Settings.copy(RED_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "moist_red_sand")))
+            Wettable.HumidityLevel.MOIST,
+            BlockBehaviour.Properties.ofFullCopy(RED_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "moist_red_sand")))
     );
     public static final Block WET_RED_SAND = new WettableBlock(
-        Wettable.HumidityLevel.WET,
-        AbstractBlock.Settings.copy(RED_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "wet_red_sand")))
+            Wettable.HumidityLevel.WET,
+            BlockBehaviour.Properties.ofFullCopy(RED_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "wet_red_sand")))
     );
     public static final Block SOAKED_RED_SAND = new SoakedBlock(
-        AbstractBlock.Settings.copy(RED_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "soaked_red_sand")))
+            BlockBehaviour.Properties.ofFullCopy(RED_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "soaked_red_sand")))
     );
 
     public static final Block SUSPICIOUS_SAND = new WettableBrushableBlock(
-        Wettable.HumidityLevel.UNAFFECTED, SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND,
-        AbstractBlock.Settings.create().mapColor(MapColor.PALE_YELLOW).instrument(NoteBlockInstrument.SNARE).strength(0.25F).sounds(BlockSoundGroup.SUSPICIOUS_SAND).pistonBehavior(PistonBehavior.DESTROY).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of("minecraft", "suspicious_sand")))
+            Wettable.HumidityLevel.UNAFFECTED, SAND, SoundEvents.BRUSH_SAND, SoundEvents.BRUSH_SAND,
+            BlockBehaviour.Properties.of().mapColor(MapColor.SAND).instrument(NoteBlockInstrument.SNARE).strength(0.25F).sound(SoundType.SUSPICIOUS_SAND).pushReaction(PushReaction.DESTROY).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "suspicious_sand")))
     );
     public static final Block MOIST_SUSPICIOUS_SAND = new WettableBrushableBlock(
-        Wettable.HumidityLevel.MOIST, MOIST_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND,
-        AbstractBlock.Settings.copy(SUSPICIOUS_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "moist_suspicious_sand")))
+            Wettable.HumidityLevel.MOIST, MOIST_SAND, SoundEvents.BRUSH_SAND, SoundEvents.BRUSH_SAND,
+            BlockBehaviour.Properties.ofFullCopy(SUSPICIOUS_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "moist_suspicious_sand")))
     );
     public static final Block WET_SUSPICIOUS_SAND = new WettableBrushableBlock(
-        Wettable.HumidityLevel.WET, WET_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND,
-        AbstractBlock.Settings.copy(SUSPICIOUS_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "wet_suspicious_sand")))
+            Wettable.HumidityLevel.WET, WET_SAND, SoundEvents.BRUSH_SAND, SoundEvents.BRUSH_SAND,
+            BlockBehaviour.Properties.ofFullCopy(SUSPICIOUS_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "wet_suspicious_sand")))
     );
     public static final Block SOAKED_SUSPICIOUS_SAND = new SoakedBrushableBlock(
-        SOAKED_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND, SoundEvents.ITEM_BRUSH_BRUSHING_SAND,
-        AbstractBlock.Settings.copy(SUSPICIOUS_SAND).registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "soaked_suspicious_sand")))
+            SOAKED_SAND, SoundEvents.BRUSH_SAND, SoundEvents.BRUSH_SAND,
+            BlockBehaviour.Properties.ofFullCopy(SUSPICIOUS_SAND).setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "soaked_suspicious_sand")))
     );
 
     private static void registerBlockItem(String path, Block block) {
-        RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, path));
-        RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, path));
+        ResourceKey<@NotNull Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, path));
+        ResourceKey<@NotNull Block> blockKey = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, path));
 
-        Registry.register(Registries.BLOCK, blockKey, block);
-        Registry.register(Registries.ITEM, itemKey, new BlockItem(block, new Item.Settings().useBlockPrefixedTranslationKey().registryKey(itemKey)));
+        Registry.register(BuiltInRegistries.BLOCK, blockKey, block);
+        Registry.register(BuiltInRegistries.ITEM, itemKey, new BlockItem(block, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
     }
 
     public static void initBlockItems() {
@@ -89,7 +93,7 @@ public class initializer {
     }
 
     public static void initCreativePlacement() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(content -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(content -> {
             content.addAfter(Items.SAND, MOIST_SAND);
             content.addAfter(MOIST_SAND, WET_SAND);
             content.addAfter(WET_SAND, SOAKED_SAND);
@@ -97,7 +101,7 @@ public class initializer {
             content.addAfter(MOIST_RED_SAND, WET_RED_SAND);
             content.addAfter(WET_RED_SAND, SOAKED_RED_SAND);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(content -> {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
             content.addAfter(Items.SUSPICIOUS_SAND, MOIST_SUSPICIOUS_SAND);
             content.addAfter(MOIST_SUSPICIOUS_SAND, WET_SUSPICIOUS_SAND);
             content.addAfter(WET_SUSPICIOUS_SAND, SOAKED_SUSPICIOUS_SAND);

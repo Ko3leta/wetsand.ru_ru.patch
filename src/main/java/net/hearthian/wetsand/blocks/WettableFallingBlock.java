@@ -2,36 +2,37 @@ package net.hearthian.wetsand.blocks;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FallingBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class WettableFallingBlock extends FallingBlock implements Wettable {
-    public static final MapCodec<WettableFallingBlock> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(HumidityLevel.CODEC.fieldOf("humidity_state").forGetter(Wettable::getHumidityLevel), createSettingsCodec()).apply(instance, WettableFallingBlock::new));
+    public static final MapCodec<WettableFallingBlock> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(HumidityLevel.CODEC.fieldOf("humidity_state").forGetter(Wettable::getHumidityLevel), propertiesCodec()).apply(instance, WettableFallingBlock::new));
     private final HumidityLevel humidityLevel;
 
-    public MapCodec<WettableFallingBlock> getCodec() {
+    public @NotNull MapCodec<WettableFallingBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public int getColor(BlockState state, BlockView world, BlockPos pos) {
+    public int getDustColor(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos) {
         return 0;
     }
 
-    public WettableFallingBlock(HumidityLevel humidityLevel, Settings settings) {
+    public WettableFallingBlock(HumidityLevel humidityLevel, Properties settings) {
         super(settings);
         this.humidityLevel = humidityLevel;
     }
 
-    protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel world, @NotNull BlockPos pos, @NotNull RandomSource random) {
         this.tickHumidity(state, world, pos);
     }
 
-    protected boolean hasRandomTicks(BlockState state) {
+    protected boolean isRandomlyTicking(BlockState state) {
         return getIncreasedHumidityBlock(state.getBlock()).isPresent();
     }
 

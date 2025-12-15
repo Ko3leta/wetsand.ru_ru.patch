@@ -23,11 +23,7 @@
 		]
 	},
 	"mixins": [
-		"wet-sand.mixins.json",
-		{
-			"config": "wet-sand.client.mixins.json",
-			"environment": "client"
-		}
+		"wet-sand.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.10",

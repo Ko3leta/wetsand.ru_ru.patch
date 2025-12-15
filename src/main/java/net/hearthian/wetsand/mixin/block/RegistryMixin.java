@@ -1,9 +1,14 @@
 package net.hearthian.wetsand.mixin.block;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.*;
-import net.minecraft.registry.entry.RegistryEntryInfo;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.RegistrationInfo;
+import net.minecraft.core.Registry;
+import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,30 +22,30 @@ import static net.hearthian.wetsand.utils.initializer.SAND;
 @Mixin(Registry.class)
 public interface RegistryMixin {
     @Inject(
-        method="register(Lnet/minecraft/registry/Registry;Lnet/minecraft/registry/RegistryKey;Ljava/lang/Object;)Ljava/lang/Object;",
+        method="register(Lnet/minecraft/core/Registry;Lnet/minecraft/resources/ResourceKey;Ljava/lang/Object;)Ljava/lang/Object;",
         at=@At("HEAD"),
         cancellable=true
     )
     // Note that this is a generic method, in Mixin you'll have to use
     // Object to replace type parameters
-    private static <V, T> void  onRegister(Registry<V> reg, RegistryKey<V> id, T entry, CallbackInfoReturnable<Object> cir) {
-        if (reg != Registries.BLOCK) return;
-        if (id.getValue().toString().equals("minecraft:sand")) {
+    private static <V, T> void  onRegister(Registry<@NotNull V> reg, ResourceKey<@NotNull V> id, T entry, CallbackInfoReturnable<Object> cir) {
+        if (reg != BuiltInRegistries.BLOCK) return;
+        if (id.identifier().toString().equals("minecraft:sand")) {
             LOGGER.info("REGISTERING SAND... {} {}", entry, entry.equals(Blocks.SAND));
-            ((MutableRegistry) reg).add(id, SAND, RegistryEntryInfo.DEFAULT);
-            ((MutableRegistry) reg).add(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "vanilla_sand")), entry, RegistryEntryInfo.DEFAULT);
+            ((WritableRegistry) reg).register(id, SAND, RegistrationInfo.BUILT_IN);
+            ((WritableRegistry) reg).register(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "vanilla_sand")), entry, RegistrationInfo.BUILT_IN);
             cir.setReturnValue(SAND);
         }
-        if (id.getValue().toString().equals("minecraft:red_sand")) {
+        if (id.identifier().toString().equals("minecraft:red_sand")) {
             LOGGER.info("REGISTERING RED SAND... {} {}", entry, entry.equals(Blocks.RED_SAND));
-            ((MutableRegistry) reg).add(id, RED_SAND, RegistryEntryInfo.DEFAULT);
-            ((MutableRegistry) reg).add(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "vanilla_red_sand")), entry, RegistryEntryInfo.DEFAULT);
+            ((WritableRegistry) reg).register(id, RED_SAND, RegistrationInfo.BUILT_IN);
+            ((WritableRegistry) reg).register(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "vanilla_red_sand")), entry, RegistrationInfo.BUILT_IN);
             cir.setReturnValue(RED_SAND);
         }
-        if (id.getValue().toString().equals("minecraft:suspicious_sand")) {
+        if (id.identifier().toString().equals("minecraft:suspicious_sand")) {
             LOGGER.info("REGISTERING SUSPICIOUS SAND... {} {}", entry, entry.equals(Blocks.SUSPICIOUS_SAND));
-            ((MutableRegistry) reg).add(id, SUSPICIOUS_SAND, RegistryEntryInfo.DEFAULT);
-            ((MutableRegistry) reg).add(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "vanilla_suspicious_sand")), entry, RegistryEntryInfo.DEFAULT);
+            ((WritableRegistry) reg).register(id, SUSPICIOUS_SAND, RegistrationInfo.BUILT_IN);
+            ((WritableRegistry) reg).register(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "vanilla_suspicious_sand")), entry, RegistrationInfo.BUILT_IN);
             cir.setReturnValue(SUSPICIOUS_SAND);
         }
     }

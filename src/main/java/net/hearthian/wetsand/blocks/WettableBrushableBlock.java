@@ -1,43 +1,47 @@
 package net.hearthian.wetsand.blocks;
 
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BrushableBlockEntity;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BrushableBlock;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.entity.BrushableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class WettableBrushableBlock extends BrushableBlock implements Wettable {
-    private final Wettable.HumidityLevel humidityLevel;
+    private final HumidityLevel humidityLevel;
 
-    public WettableBrushableBlock(Wettable.HumidityLevel humidityLevel, Block baseBlock, SoundEvent brushingSound, SoundEvent brushingCompleteSound, Settings settings) {
+    public WettableBrushableBlock(HumidityLevel humidityLevel, Block baseBlock, SoundEvent brushingSound, SoundEvent brushingCompleteSound, Properties settings) {
         super(baseBlock, brushingSound, brushingCompleteSound, settings);
         this.humidityLevel = humidityLevel;
     }
 
-    protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel world, @NotNull BlockPos pos, @NotNull RandomSource random) {
         this.tickHumidity(state, world, pos);
     }
 
-    protected boolean hasRandomTicks(BlockState state) {
+    protected boolean isRandomlyTicking(BlockState state) {
         return getIncreasedHumidityBlock(state.getBlock()).isPresent();
     }
 
     @Override
-    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    public void tick(@NotNull BlockState state, ServerLevel world, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (world.getBlockEntity(pos) instanceof BrushableBlockEntity brushableBlockEntity) {
-            brushableBlockEntity.scheduledTick(world);
+            brushableBlockEntity.checkReset(world);
         }
 
-        if (humidityLevel.ordinal() <= 1 && FallingBlock.canFallThrough(world.getBlockState(pos.down())) && pos.getY() >= world.getBottomY()) {
-            FallingBlockEntity fallingBlockEntity = FallingBlockEntity.spawnFromBlock(world, pos, state);
-            fallingBlockEntity.setDestroyedOnLanding();
+        if (humidityLevel.ordinal() <= 1 && FallingBlock.isFree(world.getBlockState(pos.below())) && pos.getY() >= world.getMinY()) {
+            FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(world, pos, state);
+            fallingBlockEntity.disableDrop();
         }
     }
 
     @Override
-    public Wettable.HumidityLevel getHumidityLevel() {
+    public HumidityLevel getHumidityLevel() {
         return humidityLevel;
     }
 }
